@@ -1,0 +1,45 @@
+version: "3.3"
+
+services:
+ ovms-server:
+# edit conf/ovms_server.conf
+    image: ovms-server
+    container_name: ovms-server
+#    user: 1000:1000 
+    build:
+        context: ${OVMS_PATH:-.}
+        dockerfile: dockerfile-ovms
+    restart: unless-stopped
+    volumes:
+        - ${OVMS_PATH:-.}/conf:/usr/src/app/server/conf:ro
+    ports:
+        - 6867:6867
+#        - 6870:6870
+#        - 6868:6868
+#        - 6869:6869
+    environment:
+        MYSQL_ROOT_PASSWORD: ${OVMS_DB_ROOT_PW}
+        TZ: Europe/Berlin
+    networks:
+        - ovmsnet
+
+# ovms database
+ ovms-db:
+    container_name: ovms-db
+    image: mariadb:latest
+    restart: unless-stopped
+    volumes:
+        - ${OVMS_DB}:/var/lib/mysql
+        - /etc/localtime:/etc/localtime:ro
+    environment:
+        MYSQL_ROOT_PASSWORD: ${OVMS_DB_ROOT_PW}
+        MYSQL_DATABASE: openvehicles
+        MYSQL_USER: ${OVMS_DB_USER}
+        MYSQL_PASSWORD: ${OVMS_DB_USER_PW}
+    networks:
+        - ovmsnet
+
+networks:
+   ovmsnet:
+     driver: bridge
+

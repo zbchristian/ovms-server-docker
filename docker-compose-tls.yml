@@ -1,0 +1,69 @@
+version: "3.3"
+
+services:
+ ovms-server:
+# edit conf/ovms_server.conf
+    image: ovms-server
+    container_name: ovms-server
+#    user: 1000:1000 
+    build:
+        context: ${OVMS_PATH:-.}
+        dockerfile: dockerfile-ovms
+    restart: unless-stopped
+    volumes:
+        - ${OVMS_PATH:-.}/conf:/usr/src/app/server/conf:ro
+    ports:
+        - 6867:6867
+        - 6870:6870
+        - 6868:6868
+        - 6869:6869
+    environment:
+        MYSQL_ROOT_PASSWORD: ${OVMS_DB_ROOT_PW}
+        TZ: Europe/Berlin
+    networks:
+        - ovmsnet
+    labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.ovms.entrypoints=websecure"
+        - "traefik.http.routers.ovms.tls=true"
+        - "traefik.http.routers.ovms.tls.certresolver=leresolver"
+        - "traefik.http.routers.ovms.rule=Host(`ovms.${DOMAIN}`)"
+
+# ovms database
+ ovms-db:
+    container_name: ovms-db
+    image: mariadb:latest
+    restart: unless-stopped
+#    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --innodb-file-per-table=1 --skip-innodb-read-only-compressed --innodb-buffer-poo>
+    volumes:
+        - ${OVMS_DB}:/var/lib/mysql
+        - /etc/localtime:/etc/localtime:ro
+    environment:
+        MYSQL_ROOT_PASSWORD: ${OVMS_DB_ROOT_PW}
+        MYSQL_DATABASE: openvehicles
+        MYSQL_USER: ${OVMS_DB_USER}
+        MYSQL_PASSWORD: ${OVMS_DB_USER_PW}
+    networks:
+        - ovmsnet
+
+# dump the lets encrypt cert into the conf directory as pem 
+ ovms-cert:
+    container_name: ovms-cert
+    image: ghcr.io/kereis/traefik-certs-dumper:latest
+#    depends_on:
+#        - traefik
+    command: --restart-containers ovms-server
+    volumes:
+        - ${LE_PATH}:/traefik:ro
+        - ${OVMS_PATH:-.}/conf:/output:rw
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+        DOMAIN: "ovms.${DOMAIN}"
+        COMBINED_PEM: ovms_server.pem
+    networks:
+        - ovmsnet
+
+networks:
+   ovmsnet:
+     driver: bridge
+
