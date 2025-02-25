@@ -10,10 +10,11 @@ There is NO web frontend and only the API V2 is per default enabled. This allows
 
 Configuration
 -------------
-- Clone this repository to your server and change to the to level directory.
+- Clone this repository to your server and change to the top level directory.
 - Modify the file `.env`
-  - add the path to the folder for the persistent data base files
-  - edit the password for the database in both files
+  - edit the path to the folder of this repo on your Linux system `OVMS_PATH`
+  - edit the path to the folder for the persistent data base `OVMS_DB`
+  - edit the password for the database `OVMS_DB_ROOT_PW` and `OVMS_DB_USER_PW`
   - `DOMAIN` and `LE_PATH` are only needed for the version utilizing a certificate (`docker-compose-tls.yml`)
 - Modify the file `conf/ovms_server.conf`
   -Edit the password for the database (same as above)
@@ -22,32 +23,42 @@ Configuration
 
 Run the Server
 --------------
-- Run the containers: `sudo docker-compose up -d` 
-- Check the log file: `sudo docker logs -f ovms-server`
-  - After about 10s the initialization of the database should be stated. The startup script adds a DEMO car and a default owner to the DB.
+- Run the container: `sudo docker-compose up -d` 
+- Check the log: `sudo docker logs -f ovms-server`
+  - After about 10s the initialization of the database should be stated
+  - The startup script adds a DEMO car and a default owner to the DB
   - Once initialized, the server should display a line containing `OVMS::Server::ApiV2: - - - starting V2 server listener on port tcp/6867`
   - Any error messages should be carefully checked (e.g. missing perl modules etc.)
 - Add your car and owner name: `sudo docker exec ovms-server ./ctrl_DB.sh addcar <CAR-ID> <CAR-PW> <YOUR-NAME>`
   - The `CAR-ID` and `CAR-PW` have to match the vehicle settings in the OVMS module
+  - User name can be omitted. In this case the default user is assigned to this car
   - Repeat for as many cars as you like
 
 Configure the OVMS Module in your car
 -------------------------------------
 Configure the Server V2 in the module by using either the Web frontend, or the console.
-Set the server name to your server and disable TLS encryption. The port should be set automatically to 6867.
+- Set the server name to your server
+- disable TLS encryption
+- the port should be set automatically to 6867.
 
 Service Script
 --------------
 The script `ctrl_DB.sh` allows to modfy the database by running: `sudo docker exec ovms-server ./ctrl_db.sh <PARAMETERS ..... >`
 
-Parameters
- -  check                       : check if the DB is available and initialze if not done yet"
- -  addcar ID pass [owner-name] : add the car with name=ID and password=pass (as defined in OVMS module)." 
- -                                owner-name is optional. Owner will be created if not existing"
- -  delcar ID                   : delete the car with name=ID from the DB"
- -  adduser name [password]     : add a user to the DB. Usually not needed. Use addcar and provide the user name."
- -  deluser name                : remove a user from the DB"
- -  list                        : list the cars and owners stored in the DB"  
+### Parameters
+check                       
+: check if the DB is available and initialze if not done yet
+addcar ID pass [owner-name] 
+: add the car with name=ID and password=pass (as defined in OVMS module). 
+: owner-name is optional. Owner will be created if not existing
+delcar ID                   
+: delete the car with name=ID from the DB
+adduser name [password]     
+: add a user to the DB. Usually not needed. Use addcar and provide the user name.
+deluser name                
+: remove a user from the DB
+list
+: list the cars and owners stored in the DB  
 
 Be aware, that the user/owner passwords have no function and by default a hashed random value is placed into the DB. 
 
