@@ -48,15 +48,20 @@ The script `ctrl_DB.sh` allows to modfy the database by running: `sudo docker ex
 ### Parameters
 check                       
 : check if the DB is available and initialze if not done yet
+
 addcar ID pass [owner-name] 
 : add the car with name=ID and password=pass (as defined in OVMS module). 
 : owner-name is optional. Owner will be created if not existing
+
 delcar ID                   
 : delete the car with name=ID from the DB
+
 adduser name [password]     
 : add a user to the DB. Usually not needed. Use addcar and provide the user name.
+
 deluser name                
 : remove a user from the DB
+
 list
 : list the cars and owners stored in the DB  
 
