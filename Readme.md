@@ -31,7 +31,7 @@ Run the Server
   - The startup script adds a DEMO car and a default owner called Joe-the-Owner to the DB
   - Once initialized, the server should display a line containing `OVMS::Server::ApiV2: - - - starting V2 server listener on port tcp/6867`
   - Any error messages should be carefully checked (e.g. missing perl modules etc.)
-- Add your car and owner name: `sudo docker exec ovms-server ./ctrl_DB.sh addcar <CAR-ID> <CAR-PW> <YOUR-NAME>`
+- Add your car and owner name: `sudo docker exec ovms-server ./ctrl-db.sh addcar <CAR-ID> <CAR-PW> <YOUR-NAME>`
   - The `CAR-ID` and `CAR-PW` have to match the vehicle settings in the OVMS module
   - The owner name can be omitted. In this case the default owner is assigned to this car
   - Repeat for as many cars as you like
@@ -51,7 +51,7 @@ Again use the Web frontend or the console
 
 Service Script
 --------------
-The script `ctrl_DB.sh` allows to modfy the database by running: `sudo docker exec ovms-server ./ctrl_db.sh <PARAMETERS ..... >`
+The script `ctrl-db.sh` allows to modfy the database by running: `sudo docker exec ovms-server ./ctrl-db.sh <PARAMETERS ..... >`
 
 ### Parameters
 check                       
