@@ -2,7 +2,7 @@
 # Run OVMS server
 # set the configuration in ./conf/
 #
-# The container will initialize the DB (DEMO car and user DEMO)
+# The container will initialize the DB (DEMO car and user Joe-the-Owner)
 #
 FROM alpine:latest
 RUN apk update
@@ -22,9 +22,6 @@ RUN rm -rf /usr/src/app/ovms
 
 # CRYPT::RC4::XS not available and cpanm fails -> utilize Crypt::RC4 instead
 RUN find /usr/src/app -regex '.*\.\(pl\|pm\)' -exec sed -i -e 's/RC4::XS/RC4/g' {} \;
-
-# fix bug in DbDBI.pm - table ovms_owners property deleted of owner checked as datetime. Should be a tinyint(1)
-RUN  find /usr/src/app/ -name "DbDBI.pm" -exec sed -i -e 's/deleted="0000-00-00 00:00:00"/deleted=0/g' {} \; 
 
 COPY ./scripts/manage-db.sh  /usr/src/app
 RUN chmod +x /usr/src/app/manage-db.sh
