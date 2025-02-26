@@ -16,6 +16,7 @@ Configuration
   - edit the path to the folder of this repo on your Linux system `OVMS_PATH`
   - edit the path to the folder for the persistent data base `OVMS_DB`
   - edit the password for the database `OVMS_DB_ROOT_PW` and `OVMS_DB_USER_PW`
+  - set the correct timezone `OVMS_TIMEZONE`
   - `DOMAIN` and `LE_PATH` are only needed for the version utilizing a certificate (`docker-compose-tls.yml`)
 - Modify the file `conf/ovms_server.conf`
   - Edit the password for the database (same as above)

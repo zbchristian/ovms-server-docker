@@ -19,7 +19,7 @@ services:
 #        - 6869:6869
     environment:
         MYSQL_ROOT_PASSWORD: ${OVMS_DB_ROOT_PW}
-        TZ: Europe/Berlin
+        TZ: ${OVMS_TIMEZONE}
     networks:
         - ovmsnet
 
