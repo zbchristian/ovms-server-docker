@@ -5,7 +5,6 @@ services:
 # edit conf/ovms_server.conf
     image: ovms-server
     container_name: ovms-server
-#    user: 1000:1000 
     build:
         context: ${OVMS_PATH:-.}
         dockerfile: dockerfile-ovms
