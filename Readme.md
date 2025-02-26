@@ -7,7 +7,7 @@ The docker-compose file instantiates two containers:
 - ovms-db - MariaDB to store the received messages
 
 There is NO web frontend and only the API V2 is per default enabled. This allows for the communication with the OVMS module and the OVMS App.
-A simple setup for cars and owners is available via the script `ctrl-db.sh`.
+A simple setup for cars and owners is available via the script `manage-db.sh`.
 
 Configuration
 -------------
@@ -32,7 +32,7 @@ Run the Server
   - The startup script adds a DEMO car and a default owner called Joe-the-Owner to the DB
   - Once initialized, the server should display a line containing `OVMS::Server::ApiV2: - - - starting V2 server listener on port tcp/6867`
   - Any error messages should be carefully checked (e.g. missing perl modules etc.)
-- Add your car and owner name: `sudo docker exec ovms-server ./ctrl-db.sh addcar <CAR-ID> <CAR-PW> <YOUR-NAME>`
+- Add your car and owner name: `sudo docker exec ovms-server ./manage-db.sh addcar <CAR-ID> <CAR-PW> <YOUR-NAME>`
   - The `CAR-ID` and `CAR-PW` have to match the vehicle settings in the OVMS module
   - The owner name can be omitted. In this case the default owner is assigned to this car
   - Repeat for as many cars as you like
@@ -52,7 +52,7 @@ Again use the Web frontend or the console
 
 Service Script
 --------------
-The script `ctrl-db.sh` allows to modfy the database by running: `sudo docker exec ovms-server ./ctrl-db.sh <PARAMETERS ..... >`
+The script `manage-db.sh` allows to modfy the database by running: `sudo docker exec ovms-server ./manage-db.sh <PARAMETERS ..... >`
 
 ### Parameters
 check                       
