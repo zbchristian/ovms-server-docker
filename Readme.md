@@ -6,8 +6,8 @@ The docker-compose file instantiates two containers:
 - ovms-server - OVMS server V2
 - ovms-db - MariaDB to store the received messages
 
-There is NO web frontend and only the API V2 is per default enabled. This allows for the communication with the OVMS module and the OVMS APP.
-A simple setup for cars and owners is available via a script.
+There is NO web frontend and only the API V2 is per default enabled. This allows for the communication with the OVMS module and the OVMS App.
+A simple setup for cars and owners is available via the script `ctrl-db.sh`.
 
 Configuration
 -------------
@@ -19,6 +19,7 @@ Configuration
   - `DOMAIN` and `LE_PATH` are only needed for the version utilizing a certificate (`docker-compose-tls.yml`)
 - Modify the file `conf/ovms_server.conf`
   - Edit the password for the database (same as above)
+  - Add plugins, BUT this has not been tested
 - Build the container: `sudo docker-compose build` 
   - The build process extracts the OVMS server from github and adds the required Perl modules and programs required by the service scripts
   - check the log for errors

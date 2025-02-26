@@ -74,7 +74,7 @@ _get_car() {
 	$mysqlcmd -e "SELECT * FROM ovms_cars WHERE vehicleid='$1'" | grep $carID
 }
 
-pw_hash() {
+_pw_hash() {
     # get Bcrypt hash of password
     htpasswd -bnBC 10 "" $1 | tr -d ':\n'
 }

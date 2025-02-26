@@ -3,7 +3,7 @@
 # Check and initialize database and run OVMS server
 #
 
-./ctrl-db.sh check
+./manage-db.sh check
 
 
 # start the server
