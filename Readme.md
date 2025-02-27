@@ -9,6 +9,7 @@ The docker-compose file instantiates two containers:
 There is NO web frontend and only the API V2 is per default enabled. This allows for the communication with the OVMS module and the OVMS App.
 A simple setup for cars and owners is available via the script `manage-db.sh`.
 
+
 Configuration
 -------------
 - Clone this repository to your server and change to the top level directory.
@@ -76,8 +77,16 @@ deluser name
 list
 : list the cars and owners stored in the DB  
 
-Be aware, that the user/owner passwords have no function and by default a bcrypt-hashed random password is placed into the DB. This should be compatible with Drupal 10.
 
+Passwords
+---------
+The password for the cars are stored as clear text in the database. 
+This is the pre-shared key for the RC4 encryption of the communication between car, server and App. 
+
+Owner passwords are stored as a Bcrypt hash in the DB, but never used in this setup. They might get important, if 
+the HTTP API is needed (enable modules `ApiHttp.pm` and `ApiHttpd.pm`) on port 6868 and 6869. In this case the
+password is required for authentification. Since the utilized hashing is not compatible with the included `AuthDrupal.pm` module,
+a corresponding password encoding has to be provided.
 
 Using TLS Transport Encryption on Port 6870
 -------------------------------------------

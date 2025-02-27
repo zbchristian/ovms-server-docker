@@ -21,6 +21,8 @@
 # Owner passwords are stored as bcrypt hash, like in Drupal 8-10
 # This is NOT consistent with the AuthDrupal.pm module, which expects a Drupal 7 hash
 #
+# zbchristian@github  2025
+#
 
 fconf=server/conf/ovms_server.conf
 fsql=server/ovms_server.sql
