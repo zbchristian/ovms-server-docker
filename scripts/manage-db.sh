@@ -1,9 +1,10 @@
 #!/bin/bash 
 #
 # Control the database of the OVMS server API V2
-# =============================================
-# Script has to run in the server directory
-# Configuration in conf/
+# ==============================================
+# Script has to run in the directory above the server/ path
+# Configuration in server/conf/ovms_server.conf
+# SQL config in server/ovms_server.sql
 #
 # w/o a parameter, the usage message is displayed
 #
@@ -44,7 +45,7 @@ rootpw=$(echo $MYSQL_ROOT_PASSWORD)
 user=$(cat $fconf | sed -rn 's/^user\=(.*?)\w*$/\1/p')
 pw=$(cat $fconf | sed -rn 's/^pass\=(.*?)\w*$/\1/p')
 
-if [ -z "$rootpw" ] || [ -z "$user" ] || [ -z "$pw" ]; then
+if [ -z "$user" ] || [ -z "$pw" ]; then
     echo "No database user and/or password found in environment/configuration file"
     exit 1
 fi 
@@ -65,15 +66,14 @@ fi
 
 mysqlcmd="mysql -h $dbhost -P $dbport -u $user -p$pw  $db"
 
-
 _get_ownerid() {
-	# get the ID of the owner - empty if not existing
-	$mysqlcmd -e "SELECT owner FROM ovms_owners WHERE name='$1'" | grep -o "[0-9]*"
+    # get the ID of the owner - empty if not existing
+    $mysqlcmd -e "SELECT owner FROM ovms_owners WHERE name='$1'" | grep -o "[0-9]*"
 }
 
 _get_car() {
-	# get the car entry - empty if not existing
-	$mysqlcmd -e "SELECT * FROM ovms_cars WHERE vehicleid='$1'" | grep $carID
+    # get the car entry - empty if not existing
+    $mysqlcmd -e "SELECT * FROM ovms_cars WHERE vehicleid='$1'" | grep $carID
 }
 
 _pw_hash() {
@@ -82,12 +82,11 @@ _pw_hash() {
 }
 
 _gen_pw() {
-	# generate base64 random password
+    # generate base64 random password
     base64 -w 0 /dev/urandom |head -c 12
 }
 
 # decode the command
-
 case "$1" in
     addcar)
         if [[ $# -lt 3 ]]; then
@@ -98,11 +97,11 @@ case "$1" in
         carpass="$3"
         if [[ $# -eq 4 ]]; then
             name="$4"
-			ownerid=$(_get_ownerid $name)
+            ownerid=$(_get_ownerid $name)
             if [ -z "$ownerid" ]; then
                 usrpass=$(_gen_pw)
                 $0 adduser $name $usrpass
-				ownerid=$(_get_ownerid $name)
+                ownerid=$(_get_ownerid $name)
             fi
         else
             ownerid=1
@@ -129,39 +128,38 @@ case "$1" in
             echo "Vehicle $carID removed from DB "
         fi
         ;;
-        adduser)
-                if [[ $# -lt 2 ]]; then
-                        echo "Usage: adduser name [password] ..."
-                        exit 1
-                fi
-                name="$2"
-				[ $# -eq 3 ] && pass="$3"  || pass=$(_gen_pw)
-				pwhash=$(_pw_hash "$pass")
-
-				uexists=$(_get_ownerid $name)
-                if [ -z "$uexists" ]; then
-						id=$($mysqlcmd -e "SELECT max(owner) FROM ovms_owners" | grep -o "[0-9]*")
-						[ -z $id ] && id=1 || ((++id))
-                        $mysqlcmd -e "INSERT INTO ovms_owners (owner, name, pass, status) VALUES('$id', '$name', '$pwhash', 1)"
-                        echo "User $name added to DB with password $pass and ownerID $id"
-                else
-                        echo "User $name already exists ... exit"
-                fi
-                ;;
-        deluser)
-                if [[ $# -ne 2 ]]; then
-                        echo "Usage: deluser name ..."
-                        exit 1
-                fi
-                name="$2"
-				uexists=$(_get_ownerid $name)
-                if [ -z "$uexists" ]; then
-                        echo "User $name does not exist ... exit"
-                else
-                        $mysqlcmd -e "DELETE FROM ovms_owners WHERE name='$name'"
-                        echo "User $name removed from DB "
-                fi
-                ;;
+    adduser)
+        if [[ $# -lt 2 ]]; then
+            echo "Usage: adduser name [password] ..."
+            exit 1
+        fi
+        name="$2"
+        [ $# -eq 3 ] && pass="$3"  || pass=$(_gen_pw)
+        pwhash=$(_pw_hash "$pass")
+        uexists=$(_get_ownerid $name)
+        if [ -z "$uexists" ]; then
+            id=$($mysqlcmd -e "SELECT max(owner) FROM ovms_owners" | grep -o "[0-9]*")
+            [ -z $id ] && id=1 || ((++id))
+            $mysqlcmd -e "INSERT INTO ovms_owners (owner, name, pass, status) VALUES('$id', '$name', '$pwhash', 1)"
+            echo "User $name added to DB with password $pass and ownerID $id"
+        else
+            echo "User $name already exists ... exit"
+        fi
+        ;;
+    deluser)
+        if [[ $# -ne 2 ]]; then
+            echo "Usage: deluser name ..."
+            exit 1
+        fi
+        name="$2"
+        uexists=$(_get_ownerid $name)
+        if [ -z "$uexists" ]; then
+            echo "User $name does not exist ... exit"
+        else
+            $mysqlcmd -e "DELETE FROM ovms_owners WHERE name='$name'"
+            echo "User $name removed from DB "
+        fi
+        ;;
     list)
         $mysqlcmd -e "SELECT vehicleid,vehiclename,carpass,owner FROM ovms_cars" 
         $mysqlcmd -e "SELECT name,owner FROM ovms_owners" 
@@ -176,6 +174,10 @@ case "$1" in
         else
             echo "DB server $dbhost not reachable ... exit"
             exit 1
+        fi
+        if [ -z "$rootpw" ]; then
+            echo "NO Root password available - exit"
+            exit 1			
         fi
         mysqlcmd="mysql -h $dbhost -P $dbport -u root -p$rootpw $db"
         # check DATABASE and initialize
@@ -206,9 +208,9 @@ case "$1" in
         fi
         ;;
     *)
-		# show usage
-		echo "Unknown option "
-		$0
+        # show usage
+        echo "Unknown option "
+        $0
         ;;
 esac
 
