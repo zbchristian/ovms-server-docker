@@ -1,7 +1,7 @@
-Run a barebone OVMS Server V2 as a Docker Container
-===================================================
+Run a OVMS Server V2 as a Docker Container
+==========================================
 
-This setup is running a barebone Open Vehicle Monitoring System Server API V2 in a docker container.
+This setup is running a minimal setup of the Open Vehicle Monitoring System Server API V2 in a docker container.
 The docker-compose file instantiates two containers: 
 - ovms-server - OVMS server V2
 - ovms-db - MariaDB to store the received messages

@@ -9,7 +9,7 @@
 # w/o a parameter, the usage message is displayed
 #
 # Parameter:
-#       check                       : check if DB is existing and initialize if not
+#       check [DB-ROOT-PW]          : check if DB is existing and initialize if not (requires a ROOT PW for the DB
 #       addcar ID pass [owner-name] : add vehicle for owner with given name
 #       delcar ID                   : delete vehicle
 #       adduser name [password] 
@@ -41,7 +41,7 @@ fi
 
 db=openvehicles
 
-rootpw=$(echo $MYSQL_ROOT_PASSWORD)
+
 user=$(cat $fconf | sed -rn 's/^user\=(.*?)\w*$/\1/p')
 pw=$(cat $fconf | sed -rn 's/^pass\=(.*?)\w*$/\1/p')
 
@@ -51,10 +51,10 @@ if [ -z "$user" ] || [ -z "$pw" ]; then
 fi 
 
 if [[ $# -eq 0 ]]; then
-    echo "Control Script for the OVMS API V2 Server"
-    echo "========================================="
+    echo "Manage DB Script for the OVMS API V2 Server"
+    echo "==========================================="
     echo "Parameters: "
-    echo "  check                       : check if the DB is available and initialze if not done yet"
+    echo "  check [DB-ROOT-PW]          : check if the DB is available and initialze if not done yet (requires DB ROOT access)"
     echo "  addcar ID pass [owner-name] : add the car with name=ID and password=pass (as defined in OVMS module)." 
     echo "                                owner-name is optional. Owner will be created if not existing"
     echo "  delcar ID                   : delete the car with name=ID from the DB"
@@ -64,7 +64,15 @@ if [[ $# -eq 0 ]]; then
     exit 0
 fi
 
-mysqlcmd="mysql -h $dbhost -P $dbport -u $user -p$pw  $db"
+if [[ "$1" == "check" ]] && [ ! -z "$2" ]; then
+    rootpw="$2"
+else 
+    rootpw=$(echo $MYSQL_ROOT_PASSWORD)
+fi
+
+dbcmd="mariadb"
+
+mysqlcmd="$dbcmd -h $dbhost -P $dbport -u $user -p$pw  $db"
 
 _get_ownerid() {
     # get the ID of the owner - empty if not existing
@@ -85,6 +93,18 @@ _gen_pw() {
     # generate base64 random password
     base64 -w 0 /dev/urandom |head -c 12
 }
+
+_init_DB() {
+    $mysqlcmd << EOF
+CREATE USER IF NOT EXISTS '$user'@'%' IDENTIFIED BY '$pw';
+CREATE DATABASE IF NOT EXISTS $db;
+GRANT ALL ON $db.* TO '$user'@'%';
+FLUSH PRIVILEGES;
+EOF
+    $mysqlcmd  < $fsql
+    echo "DB initialized and tables imported from $fsql..."
+}
+
 
 # decode the command
 case "$1" in
@@ -177,9 +197,9 @@ case "$1" in
         fi
         if [ -z "$rootpw" ]; then
             echo "NO Root password available - exit"
-            exit 1			
+            exit 1          
         fi
-        mysqlcmd="mysql -h $dbhost -P $dbport -u root -p$rootpw $db"
+        mysqlcmd="$dbcmd -h $dbhost -P $dbport -u root -p$rootpw $db"
         # check DATABASE and initialize
         if $mysqlcmd -e exit > /dev/null 2>&1; then
             echo "DB $db found"
@@ -189,14 +209,7 @@ case "$1" in
         fi
         ret=$($mysqlcmd -e "SHOW TABLES FROM $db" | grep ovms_cars)
         if [ -z "$ret" ]; then
-            $mysqlcmd <<- EOF
-			CREATE USER IF NOT EXISTS '$user'@'%' IDENTIFIED BY '$pw';
-			CREATE DATABASE IF NOT EXISTS $db;
-			GRANT ALL ON $db.* TO '$user'@'%';
-			FLUSH PRIVILEGES;
-			EOF
-            echo "   import tables from $fsql..."
-            $mysqlcmd  < $fsql
+            _init_DB
             echo "Create DEMO vehicle and the owner Joe-the-Owner"
             carpass=$(_gen_pw)
             $0 addcar DEMO $carpass  
