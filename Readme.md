@@ -57,8 +57,9 @@ Service Script
 The script `manage-db.sh` allows to modfy the database by running: `sudo docker exec ovms-server ./manage-db.sh <PARAMETERS ..... >`
 
 ### Parameters
-check                       
+check [DB-ROOT-Password]                     
 : check if the DB is available and initialze if not done yet (automatically called at startup)
+: Root acces to the DB required. Can be passed as parameter, or environment variable `MYSQL_ROOT_PASSWORD`
 
 addcar ID pass [owner-name] 
 : add the car with name=ID and password=pass (as defined in the OVMS module). 
