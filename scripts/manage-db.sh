@@ -14,7 +14,7 @@
 #       delcar ID                   : delete vehicle
 #       adduser name [password] 
 #       deluser name
-#       list                        : list all cars
+#       list                        : list all cars and owners
 #
 #
 # Requires: mysql-client, htpasswd (apache2-utils), sed, base64, netcat
@@ -95,6 +95,11 @@ _gen_pw() {
 }
 
 _init_DB() {
+    echo -n "Initialze the Database ..."
+    if [ ! -f $fsql ]; then
+        echo "DB schema file $fsql not found ... exit"
+        exit 1
+    fi
     $mysqlcmd << EOF
 CREATE USER IF NOT EXISTS '$user'@'%' IDENTIFIED BY '$pw';
 CREATE DATABASE IF NOT EXISTS $db;
@@ -102,7 +107,7 @@ GRANT ALL ON $db.* TO '$user'@'%';
 FLUSH PRIVILEGES;
 EOF
     $mysqlcmd  < $fsql
-    echo "DB initialized and tables imported from $fsql..."
+    echo "DB schema and tables imported from $fsql..."
 }
 
 
