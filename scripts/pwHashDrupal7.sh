@@ -18,5 +18,5 @@ _hashPassword_Drupal7() {
         echo $pwhash
 }
 
-_hashPassword_Drupal8 test
+_hashPassword_Drupal7 test
 
