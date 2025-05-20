@@ -10,10 +10,14 @@ RUN apk add git sed bash perl netcat-openbsd mysql-client make tzdata
 # needed for PW hashing
 RUN apk add apache2-utils
 # Required perl modules
-RUN apk add perl-dbi perl-dbd-mysql perl-anyevent-http perl-digest-hmac perl-config-inifiles perl-uri perl-json-xs 
-RUN apk add perl-crypt-rc4 perl-ev perl-data-uuid perl-protocol-websocket perl-anyevent perl-app-cpanminus
+RUN apk add perl-dbi perl-dbd-mysql perl-anyevent-http perl-digest-hmac perl-config-inifiles perl-uri perl-json-xs
+RUN apk add perl-crypt-rc4 perl-ev perl-data-uuid perl-protocol-websocket perl-anyevent perl-app-cpanminus perl-object-event
+# needed for Net::APNS::Simple
+RUN apk add perl-cryptx perl-protocol-http2 perl-crypt-jwt perl-io-socket-ssl perl-role-tiny perl-module-build-tiny
+RUN apk add perl-extutils-helpers perl-extutils-config perl-moo perl-sub-quote
 
 RUN cpanm AnyEvent::HTTPD
+RUN cpanm Net::APNS::Simple
 
 RUN mkdir -p /usr/src/app
 RUN git clone --depth 1 https://github.com/openvehicles/Open-Vehicle-Server.git /usr/src/app/ovms
@@ -29,3 +33,5 @@ COPY ./scripts/check-and-run.sh  /usr/src/app
 RUN chmod +x /usr/src/app/check-and-run.sh
 WORKDIR /usr/src/app
 ENTRYPOINT [ "/usr/src/app/check-and-run.sh" ]
+
+
